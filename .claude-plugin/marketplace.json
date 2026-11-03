@@ -1,0 +1,17 @@
+{
+  "name": "assisted-by-trailers",
+  "owner": {
+    "name": "franks-ai-skills",
+    "url": "https://github.com/franks-ai-skills"
+  },
+  "description": "Single-plugin marketplace for assisted-by-trailers: credits AI models with Assisted-by trailers in commits and pull requests.",
+  "plugins": [
+    {
+      "name": "assisted-by-trailers",
+      "source": "./",
+      "description": "Makes the agent credit AI models with 'Assisted-by: <model> (code generation|code review)' trailers in commits and pull requests, instead of Co-Authored-By noreply trailers and 'Generated with' footers.",
+      "version": "1.0.0",
+      "category": "productivity"
+    }
+  ]
+}

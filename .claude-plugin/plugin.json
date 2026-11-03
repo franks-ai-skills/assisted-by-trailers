@@ -1,0 +1,20 @@
+{
+  "name": "assisted-by-trailers",
+  "version": "1.0.0",
+  "description": "Makes the agent credit AI models with 'Assisted-by: <model> (code generation|code review)' trailers in commits and pull requests, instead of Co-Authored-By noreply trailers and 'Generated with' footers.",
+  "license": "AGPL-3.0-only",
+  "repository": "https://github.com/franks-ai-skills/assisted-by-trailers",
+  "homepage": "https://github.com/franks-ai-skills/assisted-by-trailers",
+  "author": {
+    "name": "franks-ai-skills",
+    "url": "https://github.com/franks-ai-skills"
+  },
+  "keywords": [
+    "git",
+    "commit",
+    "pull-request",
+    "trailers",
+    "attribution",
+    "assisted-by"
+  ]
+}
