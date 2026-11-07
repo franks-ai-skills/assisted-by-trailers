@@ -1,0 +1,750 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.317",
+  "startedAt": "2026-11-03T11:27:13.678Z",
+  "durationSeconds": 52,
+  "costUsd": 0.751839,
+  "partial": false,
+  "suite": {
+    "root": "~/Development/private/temp-skills/assisted-by-trailers",
+    "ablation": "with-without",
+    "threshold": 0,
+    "concurrency": 4,
+    "plugins": [
+      {
+        "name": "assisted-by-trailers",
+        "version": "1.0.0",
+        "path": "~/Development/private/temp-skills/assisted-by-trailers"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "commit-message",
+      "dir": "evals/commit-message",
+      "source": "prose",
+      "promptMarkdown": "You just made the change below to fix the page count. Write the git commit message for it. Reply with the commit message only.\n\n```diff\n--- a/pager.py\n+++ b/pager.py\n@@ def page_count(total, size):\n-    return total // size\n+    return (total + size - 1) // size\n```",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 6,
+      "graders": [
+        {
+          "name": "criteria",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "PASS only if the response is a commit message (subject line, blank line, optional body) whose final paragraph contains exactly one line of the form `Assisted-by: <Claude model name> (code generation)`, for example `Assisted-by: Claude Opus 5.5 (code generation)`, with the model name and no email address. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+          "config": {
+            "criteria": "PASS only if the response is a commit message (subject line, blank line, optional body) whose final paragraph contains exactly one line of the form `Assisted-by: <Claude model name> (code generation)`, for example `Assisted-by: Claude Opus 5.5 (code generation)`, with the model name and no email address. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 3,
+            "costUsd": 0.0586342,
+            "judgeCostUsd": 0.0006779999999999999,
+            "durationSeconds": 11,
+            "startedAt": "2026-11-03T11:27:13.733Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-s334ST/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "Fix page_count to round up for partial pages\n\nFloor division dropped the last partial page, so 11 items at 5 per\npage gave 2 pages instead of 3. Use ceiling division so leftover items\nget their own page.\n\nAssisted-by: Claude Opus 5.5 (code generation)"
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0.032552599999999994,
+            "judgeCostUsd": 0.0003332,
+            "durationSeconds": 8,
+            "startedAt": "2026-11-03T11:27:13.733Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-KYAHqf/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "Fix page_count to round up for partial pages\n\nFloor division dropped the final partial page, so a total that wasn't\nan exact multiple of the page size reported one page too few (e.g.\npage_count(11, 5) returned 2 instead of 3). Use ceiling division\ninstead."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    },
+    {
+      "name": "human-co-author",
+      "dir": "evals/human-co-author",
+      "source": "prose",
+      "promptMarkdown": "I pair-programmed the change below with my colleague Jane Doe <jane@example.com>, and you generated the code. Credit her as a co-author. Write the git commit message. Reply with the commit message only.\n\n```diff\n--- a/pager.py\n+++ b/pager.py\n@@ def page_count(total, size):\n-    return total // size\n+    return (total + size - 1) // size\n```",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 6,
+      "graders": [
+        {
+          "name": "criteria",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "PASS only if the final paragraph of the commit message contains both `Co-authored-by: Jane Doe <jane@example.com>` (any capitalization of the key) and an `Assisted-by: <Claude model name> (code generation)` line, with the `Assisted-by` line after the human co-author line. FAIL if Jane Doe is dropped or the model gets an email address. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+          "config": {
+            "criteria": "PASS only if the final paragraph of the commit message contains both `Co-authored-by: Jane Doe <jane@example.com>` (any capitalization of the key) and an `Assisted-by: <Claude model name> (code generation)` line, with the `Assisted-by` line after the human co-author line. FAIL if Jane Doe is dropped or the model gets an email address. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 3,
+            "costUsd": 0.059625,
+            "judgeCostUsd": 0.000678,
+            "durationSeconds": 11,
+            "startedAt": "2026-11-03T11:27:13.733Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-PtB4Au/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "Round up page count so partial last page is included\n\npage_count() used floor division, so any remainder items were dropped.\nFor example, 101 items with a page size of 10 gave 10 pages instead of 11.\nUsing ceiling division counts the partial last page.\n\nCo-authored-by: Jane Doe <jane@example.com>\nAssisted-by: Claude Opus 5.5 (code generation)"
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0.0379565,
+            "judgeCostUsd": 0.0005010999999999999,
+            "durationSeconds": 10,
+            "startedAt": "2026-11-03T11:27:13.733Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-b5zfeX/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "Fix page_count to round up partial pages\n\npage_count used floor division, so any leftover items that didn't fill a\nfull page were dropped (e.g. 11 items at size 10 gave 1 page instead of 2).\nIt now uses ceiling division so a partial last page is counted.\n\nCo-authored-by: Jane Doe <jane@example.com>\nCo-authored-by: Claude <noreply@anthropic.com>"
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    },
+    {
+      "name": "multi-vendor",
+      "dir": "evals/multi-vendor",
+      "source": "prose",
+      "promptMarkdown": "Claude Opus 5.5 generated the change below and GPT-5 reviewed it. Write the git commit message. Reply with the commit message only.\n\n```diff\n--- a/pager.py\n+++ b/pager.py\n@@ def page_count(total, size):\n-    return total // size\n+    return (total + size - 1) // size\n```",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 6,
+      "graders": [
+        {
+          "name": "criteria",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "PASS only if the final paragraph of the commit message contains both `Assisted-by: Claude Opus 5.5 (code generation)` and `Assisted-by: GPT-5 (code review)`, each on its own line, and no other line for the same vendor and role. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+          "config": {
+            "criteria": "PASS only if the final paragraph of the commit message contains both `Assisted-by: Claude Opus 5.5 (code generation)` and `Assisted-by: GPT-5 (code review)`, each on its own line, and no other line for the same vendor and role. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 3,
+            "costUsd": 0.0587085,
+            "judgeCostUsd": 0.00015309999999999998,
+            "durationSeconds": 11,
+            "startedAt": "2026-11-03T11:27:22.049Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-2mUtiF/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "Fix page count rounding down for partial pages\n\npage_count() used floor division, so a partial last page was dropped.\nFor example, 11 items at 5 per page gave 2 pages instead of 3. Use\nceiling division so a leftover partial page is counted.\n\nAssisted-by: Claude Opus 5.5 (code generation)\nAssisted-by: GPT-5 (code review)"
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0.0296521,
+            "judgeCostUsd": 0.0004877,
+            "durationSeconds": 13,
+            "startedAt": "2026-11-03T11:27:23.878Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-4qZVX0/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "Fix page_count to round up for partial pages\n\nInteger division dropped the last partial page, so 10 items with a\npage size of 3 gave 3 pages instead of 4. Use ceiling division so any\nleftover items get their own page."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    },
+    {
+      "name": "pr-description",
+      "dir": "evals/pr-description",
+      "source": "prose",
+      "promptMarkdown": "You made the change below. Write the GitHub pull request description for it. Reply with the description only.\n\n```diff\n--- a/pager.py\n+++ b/pager.py\n@@ def page_count(total, size):\n-    return total // size\n+    return (total + size - 1) // size\n```",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 6,
+      "graders": [
+        {
+          "name": "criteria",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "PASS only if the pull request description ends with a final paragraph containing an `Assisted-by: <Claude model name> (code generation)` line without an email address, and has no \"Generated with ...\" footer (such as `🤖 Generated with [Claude Code](...)`) and no `Co-Authored-By` noreply trailer anywhere.",
+          "config": {
+            "criteria": "PASS only if the pull request description ends with a final paragraph containing an `Assisted-by: <Claude model name> (code generation)` line without an email address, and has no \"Generated with ...\" footer (such as `🤖 Generated with [Claude Code](...)`) and no `Co-Authored-By` noreply trailer anywhere.",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 3,
+            "costUsd": 0.0639779,
+            "judgeCostUsd": 0.0008181,
+            "durationSeconds": 16,
+            "startedAt": "2026-11-03T11:27:24.658Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-Wx2F1k/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "## Fix `page_count` dropping the last partial page\n\n`page_count` used floor division (`total // size`), so any leftover items that didn't fill a whole page weren't counted. For example, 25 items at 10 per page returned 2 pages instead of 3, and the last 5 items couldn't be reached. With fewer items than one page (such as 5 items at 10 per page), it returned 0.\n\nThis change uses ceiling division instead: `(total + size - 1) // size`.\n\n| total | size | before | after |\n|------:|-----:|-------:|------:|\n| 0     | 10   | 0      | 0     |\n| 5     | 10   | 0      | 1     |\n| 10    | 10   | 1      | 1     |\n| 25    | 10   | 2      | 3     |\n| 30    | 10   | 3      | 3     |\n\nExact multiples and `total == 0` give the same result as before. Only totals with a partial last page change.\n\nAssisted-by: Claude Opus 5.5 (code generation)"
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0.037233999999999996,
+            "judgeCostUsd": 0.0006613999999999999,
+            "durationSeconds": 14,
+            "startedAt": "2026-11-03T11:27:25.217Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-XORzfi/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "## Fix `page_count` undercounting when items don't fill the last page\n\n`page_count` used floor division, so a final page with only some items on it wasn't counted. For example, 25 items at 10 per page returned 2 instead of 3, which would hide the last 5 items from anything that loops over pages.\n\n### Change\n\n```python\nreturn (total + size - 1) // size\n```\n\nThis is integer ceiling division. It gives the right count without converting to float and back.\n\n| `total` | `size` | Before | After |\n|--------:|-------:|-------:|------:|\n| 0       | 10     | 0      | 0     |\n| 10      | 10     | 1      | 1     |\n| 11      | 10     | 1      | 2     |\n| 25      | 10     | 2      | 3     |\n\n### Notes for reviewers\n\n- When `total` is an exact multiple of `size`, the result is unchanged.\n- When `size == 0`, it still raises `ZeroDivisionError`, as before. This PR doesn't add input validation.\n- Callers that relied on the old count, for example by adding 1 themselves to cover a partial page, would now count one page too many. Those call sites need checking.\n- No tests were added in this change. The table above is a good starting point for some."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    },
+    {
+      "name": "review-role",
+      "dir": "evals/review-role",
+      "source": "prose",
+      "promptMarkdown": "I wrote the change below myself. You reviewed it and found no issues. Write the git commit message for my change. Reply with the commit message only.\n\n```diff\n--- a/pager.py\n+++ b/pager.py\n@@ def page_count(total, size):\n-    return total // size\n+    return (total + size - 1) // size\n```",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 6,
+      "graders": [
+        {
+          "name": "criteria",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "PASS only if the final paragraph of the commit message contains an `Assisted-by: <Claude model name> (code review)` line and no `(code generation)` line, because the assistant only reviewed the change. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+          "config": {
+            "criteria": "PASS only if the final paragraph of the commit message contains an `Assisted-by: <Claude model name> (code review)` line and no `(code generation)` line, because the assistant only reviewed the change. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 3,
+            "costUsd": 0.059919,
+            "judgeCostUsd": 0.0004081999999999996,
+            "durationSeconds": 12,
+            "startedAt": "2026-11-03T11:27:32.850Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-sIl0Pr/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "Round up page count in page_count\n\nInteger division dropped the final partial page, so a total that didn't\ndivide evenly by the page size reported one page too few. Use ceiling\ndivision so the leftover items get their own page.\n\nAssisted-by: Claude Opus 5.5 (code review)"
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0.0297555,
+            "judgeCostUsd": 0.0006998999999999996,
+            "durationSeconds": 9,
+            "startedAt": "2026-11-03T11:27:36.962Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-Xytujq/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "Fix page_count to round up for partial pages\n\nInteger division dropped the last partial page, so page_count(10, 3)\nreturned 3 instead of 4. Use ceiling division so any leftover items\nget their own page."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    },
+    {
+      "name": "same-release-price",
+      "dir": "evals/same-release-price",
+      "source": "prose",
+      "promptMarkdown": "Claude Sonnet 5.5 and Claude Opus 5.5 both generated parts of the change below. Write the git commit message. Reply with the commit message only.\n\n```diff\n--- a/pager.py\n+++ b/pager.py\n@@ def page_count(total, size):\n-    return total // size\n+    return (total + size - 1) // size\n```",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 6,
+      "graders": [
+        {
+          "name": "criteria",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "PASS only if the final paragraph of the commit message credits exactly one Anthropic model for code generation, and that line is exactly `Assisted-by: Claude Opus 5.5 (code generation)` (same release, so the more expensive model wins). FAIL if Claude Sonnet 5.5 also gets an `Assisted-by` line. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+          "config": {
+            "criteria": "PASS only if the final paragraph of the commit message credits exactly one Anthropic model for code generation, and that line is exactly `Assisted-by: Claude Opus 5.5 (code generation)` (same release, so the more expensive model wins). FAIL if Claude Sonnet 5.5 also gets an `Assisted-by` line. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 3,
+            "costUsd": 0.05890849999999999,
+            "judgeCostUsd": 0.0006002999999999996,
+            "durationSeconds": 14,
+            "startedAt": "2026-11-03T11:27:39.159Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-32umhm/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "Fix page_count to round up partial pages\n\npage_count used floor division, so a trailing partial page was dropped\nwhenever total was not an exact multiple of size (e.g. 11 items with\nsize 10 gave 1 page instead of 2). Use ceiling division instead.\n\nAssisted-by: Claude Opus 5.5 (code generation)"
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0.0322926,
+            "judgeCostUsd": 0.0003669999999999999,
+            "durationSeconds": 10,
+            "startedAt": "2026-11-03T11:27:40.894Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-3mxAf7/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "Fix page_count to round up partial pages\n\nFloor division dropped the final partial page, so page_count(10, 3)\nreturned 3 instead of 4. Use ceiling division so the leftover items\nget their own page.\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    },
+    {
+      "name": "same-vendor-latest",
+      "dir": "evals/same-vendor-latest",
+      "source": "prose",
+      "promptMarkdown": "Claude Sonnet 5 wrote the first version of the change below, then Claude Opus 5.5 rewrote it. Write the git commit message. Reply with the commit message only.\n\n```diff\n--- a/pager.py\n+++ b/pager.py\n@@ def page_count(total, size):\n-    return total // size\n+    return (total + size - 1) // size\n```",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 6,
+      "graders": [
+        {
+          "name": "criteria",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "PASS only if the final paragraph of the commit message credits exactly one Anthropic model for code generation, and that line is exactly `Assisted-by: Claude Opus 5.5 (code generation)` (the latest release wins over Claude Sonnet 5). FAIL if Claude Sonnet 5 also gets an `Assisted-by` line. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+          "config": {
+            "criteria": "PASS only if the final paragraph of the commit message credits exactly one Anthropic model for code generation, and that line is exactly `Assisted-by: Claude Opus 5.5 (code generation)` (the latest release wins over Claude Sonnet 5). FAIL if Claude Sonnet 5 also gets an `Assisted-by` line. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 3,
+            "costUsd": 0.0599485,
+            "judgeCostUsd": 0.00017509999999999965,
+            "durationSeconds": 16,
+            "startedAt": "2026-11-03T11:27:44.757Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-IpRelw/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "Round up page count so a partial last page is counted\n\npage_count() used floor division, so any leftover items that did not\nfill a whole page were dropped from the count. For example, 11 items at\n10 per page gave 1 page instead of 2. Use ceiling division instead.\n\nAssisted-by: Claude Opus 5.5 (code generation)"
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0.0323078,
+            "judgeCostUsd": 0.00042040000000000003,
+            "durationSeconds": 7,
+            "startedAt": "2026-11-03T11:27:45.855Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-1ZFaXB/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "Fix page_count to round up for partial pages\n\nInteger division dropped the final partial page, so e.g. 11 items at\n10 per page reported 1 page instead of 2. Use ceiling division."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    },
+    {
+      "name": "unclear-order-asks",
+      "dir": "evals/unclear-order-asks",
+      "source": "prose",
+      "promptMarkdown": "Claude Fable 5.1 and Claude Opus 5.5 both generated parts of the change below. Write the git commit message.\n\n```diff\n--- a/pager.py\n+++ b/pager.py\n@@ def page_count(total, size):\n-    return total // size\n+    return (total + size - 1) // size\n```",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 6,
+      "graders": [
+        {
+          "name": "criteria",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The skill allows only one Anthropic code-generation line and says to ask the owner when the release order or price of two same-vendor models is unclear; nothing in the prompt says which of these two is newer or more expensive. PASS if the response asks the user which model to credit (or about their release order or price), even if it also shows a draft. FAIL if it presents a final message that credits both models with `(code generation)` lines, or silently picks one without asking or giving a verifiable reason. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+          "config": {
+            "criteria": "The skill allows only one Anthropic code-generation line and says to ask the owner when the release order or price of two same-vendor models is unclear; nothing in the prompt says which of these two is newer or more expensive. PASS if the response asks the user which model to credit (or about their release order or price), even if it also shows a draft. FAIL if it presents a final message that credits both models with `(code generation)` lines, or silently picks one without asking or giving a verifiable reason. Also FAIL if the message contains a `Co-Authored-By:` trailer with a `noreply@` address or a \"Generated with\" footer.",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 3,
+            "costUsd": 0.0663553,
+            "judgeCostUsd": 0.0003091000000000001,
+            "durationSeconds": 15,
+            "startedAt": "2026-11-03T11:27:50.757Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-5SWVMj/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "I can write the message, but one detail needs your call first: which model goes in the `Assisted-by:` trailer.\n\nBoth models are from Anthropic and both generated code, so the convention allows only one line for them. The tie-breakers are the later release, or the more expensive model if they came out together. I can't tell which of Claude Fable 5.1 and Claude Opus 5.5 came out later or costs more, because \"5.1\" and \"5.5\" belong to different model families. I'd rather ask than guess. **Which one should be credited?**\n\nHere's the draft with that line left open:\n\n```\nFix page_count dropping the final partial page\n\npage_count used floor division, so any remainder was discarded and a\ntrailing partial page was never counted (e.g. 11 items at 5 per page\ngave 2 pages instead of 3). Use ceiling division instead.\n\nAssisted-by: <Claude Fable 5.1 | Claude Opus 5.5> (code generation)\n```\n\nOnce you pick, I'll fill in the trailer, run the format check on the message and commit it with `git commit -F`."
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0.034011,
+            "judgeCostUsd": 0.0003757999999999999,
+            "durationSeconds": 12,
+            "startedAt": "2026-11-03T11:27:52.871Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-DCarVm/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "criteria",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "```\nFix page_count to round up for partial pages\n\npage_count used floor division, so any leftover items that didn't fill\na whole page were dropped from the count. For example, 11 items at 5\nper page gave 2 pages instead of 3, and any total smaller than the page\nsize gave 0.\n\nSwitch to ceiling division with (total + size - 1) // size so a partial\nlast page is counted.\n\nCo-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n```"
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 8,
+    "casesPassed": 8,
+    "overallScore": 1,
+    "overallPassRate": 1,
+    "meanDelta": 1
+  }
+}
